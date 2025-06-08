@@ -28,4 +28,5 @@ hadoop-hive-pyspark-docker/
 |- spark/spark-defaults.conf
 |- scripts/init-hive.sh
 |- notebooks/example.ipynb
+|- data/boneage-dataset.csv
 |-README.md
