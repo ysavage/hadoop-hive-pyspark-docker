@@ -24,12 +24,8 @@ hadoop-hive-pyspark-docker/
 
 |- docker-compose.yml
 |- Dockerfile
-|- hive/
-   |- hive-site.xml
-|- spark/
-   |- spark-defaults.conf
-|- scripts/
-   |- init-hive.sh
-|- notebooks/
-   |- example.ipynb
+|- hive/hive-site.xml
+|- spark/spark-defaults.conf
+|- scripts/init-hive.sh
+|- notebooks/example.ipynb
 |-README.md
