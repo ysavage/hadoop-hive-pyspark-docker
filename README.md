@@ -22,11 +22,11 @@ This project provides a complete Docker-based environment for working with Hadoo
 ## 📁 Project Structure
 hadoop-hive-pyspark-docker/
 
-|- docker-compose.yml
-|- Dockerfile
-|- hive/hive-site.xml
-|- spark/spark-defaults.conf
-|- scripts/init-hive.sh
-|- notebooks/example.ipynb
-|- data/boneage-dataset.csv
-|-README.md
+|-- docker-compose.yml
+|-- Dockerfile
+|-- hive/hive-site.xml
+|-- spark/spark-defaults.conf
+|-- scripts/init-hive.sh
+|-- notebooks/example.ipynb
+|-- data/boneage-dataset.csv
+|-- README.md
