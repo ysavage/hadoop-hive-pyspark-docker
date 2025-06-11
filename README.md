@@ -31,5 +31,5 @@ hadoop-hive-pyspark-docker/
 |-- data/boneage-dataset.csv
 |-- README.md
 
-<img src="assets/Architecture.png" alt="Diagram" width="400"/>
+<img src="assets/Architecture.png" alt="Diagram" width="800"/>
 
