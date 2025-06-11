@@ -1,11 +1,12 @@
-FROM jupyter/pyspark-notebook:spark-3.3.0
+# Use the official Jupyter PySpark Notebook image as the base image
+FROM jupyter/pyspark-notebook:latest
 
 USER root
 
 # Install Hive and Hadoop client tools
 RUN apt-get update && \
     apt-get install -y wget gnupg lsb-release openjdk-8-jdk && \
-    wget https://downloads.apache.org/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz && \
+    wget https://archive.apache.org/dist/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz && \
     tar -xzf apache-hive-2.3.9-bin.tar.gz -C /opt/ && \
     mv /opt/apache-hive-2.3.9-bin /opt/hive && \
     rm apache-hive-2.3.9-bin.tar.gz && \
@@ -16,6 +17,10 @@ RUN apt-get update && \
 ENV HIVE_HOME=/opt/hive
 ENV PATH=$PATH:$HIVE_HOME/bin
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+# Set environment variables for PySpark
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=jupyter
+ENV PYSPARK_DRIVER_PYTHON_OPTS="lab --ip=0.0.0.0 --port=8888 --allow-root --no-browser"
 
 # Create Hive warehouse directory
 RUN mkdir -p /user/hive/warehouse && chmod -R 777 /user/hive/warehouse
@@ -25,3 +30,6 @@ USER $NB_UID
 
 # Set working directory
 WORKDIR /home/jovyan/work
+
+# Launch JupyterLab with no token/password
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser", "--NotebookApp.token=''", "--NotebookApp.password=''"]

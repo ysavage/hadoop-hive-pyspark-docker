@@ -1,0 +1,5 @@
+boneage-images
+notebooks/.ipynb_checkpoints
+notebooks/metastore_db
+notebooks/spark-warehouse
+notebooks/derby.log
