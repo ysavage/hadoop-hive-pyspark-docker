@@ -30,3 +30,6 @@ hadoop-hive-pyspark-docker/
 |-- notebooks/example.ipynb
 |-- data/boneage-dataset.csv
 |-- README.md
+
+!Alt Text
+!Architecture
