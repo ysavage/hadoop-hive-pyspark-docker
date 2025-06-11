@@ -29,6 +29,8 @@ hadoop-hive-pyspark-docker/
 |-- scripts/init-hive.sh
 |-- notebooks/example.ipynb
 |-- data/boneage-dataset.csv
+|-- data/boneage-images/ . # ignored using GitIgnore
+|-- assets/architecture.png
 |-- README.md
 
 <img src="assets/Architecture.png" alt="Diagram" width="800"/>
