@@ -3,20 +3,42 @@ version: '3.8'
 services:
   # bigdata:
   #   build: .
-  #   container_name: Big-Data-Analytics-Assessment
+  #   container_name: Spark - BigDataAnalytics-Assessment
   #   ports:
   #     - "8889:8888"  # JupyterLab
   #     - "4040:4040"  # Spark UI
   #   volumes:
   #     - ./notebooks:/home/jovyan/work       # Persist Jupyter notebooks
   #     - ./data:/home/jovyan/data            # Store datasets
+  #     - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+  #     - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf
   #   environment:
   #     JUPYTER_TOKEN: ""
   #     JUPYTER_PASSWORD: ""
   #     JUPYTER_PORT: 8888
   #     SPARK_UI_PORT: 4040
   #     GRANT_SUDO: yes
+  #   networks:
+  #     - hadoop
+      
   #   restart: always
+
+  spark:
+    build: .
+    container_name: spark - BigDataAnalytics-Assessment
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    environment:
+      - PYSPARK_PYTHON=python3
+      - PYSPARK_DRIVER_PYTHON=jupyter
+      - PYSPARK_DRIVER_PYTHON_OPTS=notebook --ip=0.0.0.0 --no-browser --allow-root
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+      - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf
+    networks:
+      - hadoop
 
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
@@ -80,23 +102,6 @@ services:
       - hive-metastore
     ports:
       - "10000:10000"
-    networks:
-      - hadoop
-
-  spark:
-    build: .
-    container_name: spark
-    ports:
-      - "8888:8888"
-      - "4040:4040"
-    environment:
-      - PYSPARK_PYTHON=python3
-      - PYSPARK_DRIVER_PYTHON=jupyter
-      - PYSPARK_DRIVER_PYTHON_OPTS=notebook --ip=0.0.0.0 --no-browser --allow-root
-    volumes:
-      - ./notebooks:/home/jovyan/work
-      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
-      - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf
     networks:
       - hadoop
 
