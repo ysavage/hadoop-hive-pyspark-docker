@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # bigdata:
+  #   build: .
+  #   container_name: Big-Data-Analytics-Assessment
+  #   ports:
+  #     - "8889:8888"  # JupyterLab
+  #     - "4040:4040"  # Spark UI
+  #   volumes:
+  #     - ./notebooks:/home/jovyan/work       # Persist Jupyter notebooks
+  #     - ./data:/home/jovyan/data            # Store datasets
+  #   environment:
+  #     JUPYTER_TOKEN: ""
+  #     JUPYTER_PASSWORD: ""
+  #     JUPYTER_PORT: 8888
+  #     SPARK_UI_PORT: 4040
+  #     GRANT_SUDO: yes
+  #   restart: always
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    environment:
+      - CLUSTER_NAME=test
+    ports:
+      - "9870:9870"
+    volumes:
+      - namenode:/hadoop/dfs/name
+    networks:
+      - hadoop
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+    volumes:
+      - datanode:/hadoop/dfs/data
+    networks:
+      - hadoop
+
+  metastore-postgres:
+    image: postgres:13
+    container_name: metastore-postgres
+    environment:
+      - POSTGRES_DB=metastore
+      - POSTGRES_USER=hive
+      - POSTGRES_PASSWORD=hive
+    volumes:
+      - metastore-postgres:/var/lib/postgresql/data
+    networks:
+      - hadoop
+
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    environment:
+      - HIVE_METASTORE_DB_TYPE=postgres
+      - HIVE_METASTORE_DB_HOST=metastore-postgres
+      - HIVE_METASTORE_DB_NAME=metastore
+      - HIVE_METASTORE_DB_USER=hive
+      - HIVE_METASTORE_DB_PASS=hive
+    volumes:
+      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+    depends_on:
+      - metastore-postgres
+    networks:
+      - hadoop
+
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-server
+    environment:
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+    volumes:
+      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+      - ./scripts/init-hive.sh:/docker-entrypoint-initdb.d/init-hive.sh
+    depends_on:
+      - hive-metastore
+    ports:
+      - "10000:10000"
+    networks:
+      - hadoop
+
+  spark:
+    build: .
+    container_name: spark
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    environment:
+      - PYSPARK_PYTHON=python3
+      - PYSPARK_DRIVER_PYTHON=jupyter
+      - PYSPARK_DRIVER_PYTHON_OPTS=notebook --ip=0.0.0.0 --no-browser --allow-root
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+      - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf
+    networks:
+      - hadoop
+
+volumes:
+  namenode:
+  datanode:
+  metastore-postgres:
+
+networks:
+  hadoop:
+    driver: bridge
