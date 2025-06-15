@@ -1,2 +1,3 @@
+# Preventing IDE VS Code from changing file attrributes
 *.ipynb text eol=lf
 Dockerfile text eol=lf

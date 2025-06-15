@@ -1,4 +1,4 @@
-# Use Jupyter PySpark Notebook as base
+# Use Jupyter PySpark Notebook as base of implemetation
 FROM jupyter/pyspark-notebook:latest
 
 # Switch to root to install Spark
