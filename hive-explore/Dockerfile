@@ -4,7 +4,7 @@ FROM jupyter/pyspark-notebook:latest
 # Switch to root to install Spark
 USER root
 
-# Install specific PySpark version
+# #Install specific PySpark version
  RUN pip install pyspark==3.2.1
 
 # Install dependencies
@@ -27,7 +27,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 RUN curl -L https://archive.apache.org/dist/spark/spark-3.3.0/spark-3.3.0-bin-hadoop3.tgz | tar xz -C /opt/ && \
     mv /opt/spark-3.3.0-bin-hadoop3 /opt/spark
 
-# Set PySpark & Jupyter Lab environment variables
+# Set Spark environment variables
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 ENV PYSPARK_PYTHON=python3
@@ -43,5 +43,6 @@ USER jovyan
 # Register PySpark kernel
 RUN /opt/conda/bin/python -m ipykernel install --user --name pyspark --display-name "PySpark"
 
-# Launch JupyterLab without token; this is not safe for real world application, the a
+
+# Launch JupyterLab without token
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser", "--NotebookApp.token=''", "--NotebookApp.password=''"]

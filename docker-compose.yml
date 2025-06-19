@@ -1,97 +1,103 @@
 #version: '3.8'
-
 services:
   # Creat the base image container for Spark with Jupyter Notebook dependencies
   spark:
     # image: jupyter/pyspark-notebook:spark-3.3.0
-    build: .
-    container_name: spark # name of the contain
+    build: . # Pointing node to use internal image or one specify in Dockerfile
+    container_name: spark # Tje name of the container
     ports:
-      - "8888:8888"  # JupyterLab
-      - "9000:9000"  # Spark UI Job Monitory link
+      - "8888:8888" # JupyterLab
     environment:
       JUPYTER_TOKEN: "" # Setting a no username and
       JUPYTER_PASSWORD: "" # No passowrd to prevent prompt for login.
       JUPYTER_PORT: 8888 # Instantiating container ports
       SPARK_UI_PORT: 9000
-      GRANT_SUDO: yes
-
+      GRANT_SUDO: yes # Granting admin admin right to container user profile.
     volumes:
-      - ./notebooks:/home/jovyan/work       # Persist Jupyter notebooks
-      - ./data:/home/jovyan/data            # Store datasets
-      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
-      - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf
-      - ./scripts/init-hive.sh:/docker-entrypoint-initdb.d/init-hive.sh
-    restart: always
+      - ./notebooks:/home/jovyan/work # Persistent directory for Jupyter 'notebooks'
+      - ./data:/home/jovyan/data      # Datasets are stored and retrieved form here 'data'
+      - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml # Hive settings files
+      - ./spark/spark-defaults.conf:/usr/local/spark/conf/spark-defaults.conf # Spark configurations
+      - ./scripts/init-hive.sh:/docker-entrypoint-initdb.d/init-hive.sh # Script to instantiate hive server.
+    restart: always # As the base container, it automatically restarts in case of crashes.
     networks:
-      - hadoop
+      - hadoop # Containers grouped in to a network called hadoop to ensure easy communication
 
+  # Name-Node - Manages the HDFS metadata (file names, directories, permissions, block locations).
   namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8 # Pointing node to external image
     container_name: namenode
     environment:
-      - CLUSTER_NAME=test
+      - CLUSTER_NAME=test # Dynamically configure log files or paths as test indicating type of implementation
     ports:
-      - "9870:9870"
+      - "9870:9870" # Management monitor
     volumes:
-      - namenode:/hadoop/dfs/name
+      - namenode:/hadoop/dfs/name # The is mounted for both Name & Data Nodes to enable functionallity
     networks:
       - hadoop
 
+  # Data-Node - Stores the actual data blocks on disk, and multiple - 
+  # Data-Nodes can exist to distribute and replicate data across networks
   datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode
     environment:
       - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+    ports:
+      - "9864:9864" # Data operation monitor
     volumes:
-      - datanode:/hadoop/dfs/data
+      - datanode:/hadoop/dfs/data 
     networks:
       - hadoop
-
-  metastore-postgres:
+ 
+  metastore-postgres: # The main database engine 
     image: postgres:13
     container_name: metastore-postgres
+    # Environmental variables used by not to interact with other nodes
     environment:
       - POSTGRES_DB=metastore
       - POSTGRES_USER=hive
       - POSTGRES_PASSWORD=hive
-    volumes:
+    volumes: # Used for mounting storages and executing scripts.
       - metastore-postgres:/var/lib/postgresql/data
     networks:
       - hadoop
 
-  hive-metastore:
+  hive-metastore: # Manage hive rquest and mediate between server and database
     image: bde2020/hive:2.3.2-postgresql-metastore
     container_name: hive-metastore
-    environment:
+    environment: # Setting essential variables to support running environment.
       - HIVE_METASTORE_DB_TYPE=postgres
       - HIVE_METASTORE_DB_HOST=metastore-postgres
       - HIVE_METASTORE_DB_NAME=metastore
-      - HIVE_METASTORE_DB_USER=hive
-      - HIVE_METASTORE_DB_PASS=hive
-    volumes:
+      - HIVE_METASTORE_DB_USER=hive # Login user name
+      - HIVE_METASTORE_DB_PASS=hive # Login user passowrd
+    volumes: # Mounting volume with basic configuration for node functionallity.
       - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
-    depends_on:
+    depends_on: 
+    # This node perform well only if metastore is up and running.
       - metastore-postgres
     networks:
-      - hadoop
+      - hadoop # Containers network for easy of communication with the setup.
   
+  # Hive client used to make request and query in data operations
   hive-server:
     # image: bde2020/hive:2.3.2-postgresql-metastore
     build: .
     container_name: hive-server
-    environment:
+    ports:
+      - "10000:10000" # Hive Server2
+    environment: # Loading driver to enable communication with Hive Metastore
       - HIVE_METASTORE_URI=thrift://hive-metastore:9083
-    volumes:
+    volumes: # Mounting volume with basic configuration for node functionallity.
       - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
       - ./scripts/init-hive.sh:/docker-entrypoint-initdb.d/init-hive.sh
     depends_on:
-      - hive-metastore
-    ports:
-      - "10000:10000"
+      - hive-metastore # This container will not work if Hive Metastore is down.
     networks:
       - hadoop
 
+# Nodes running with file operation task: managing, reading and writting data to storage
 volumes:
   namenode:
   datanode:
@@ -99,4 +105,4 @@ volumes:
 
 networks:
   hadoop:
-    driver: bridge
+    driver: bridge # Driver to support the project network.

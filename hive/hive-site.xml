@@ -4,22 +4,22 @@
 
   <!-- Hive Metastore connection -->
   <property>
-    <name>javax.jdo.option.ConnectionURL</name>
+    <name>javax.jdo.option.ConnectionURL</name> <!-- setting http connection url -->
     <value>jdbc:postgresql://metastore-postgres:5432/metastore</value>
     <description>PostgreSQL JDBC connection string</description>
   </property>
 
-  <property>
+  <property> <!-- Specifying connect driver -->
     <name>javax.jdo.option.ConnectionDriverName</name>
     <value>org.postgresql.Driver</value>
   </property>
 
-  <property>
+  <property> <!-- The name of the server user profile -->
     <name>javax.jdo.option.ConnectionUserName</name>
     <value>hive</value>
   </property>
 
-  <property>
+  <property> <!-- The user passowrd -->
     <name>javax.jdo.option.ConnectionPassword</name>
     <value>hive</value>
   </property>
