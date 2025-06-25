@@ -5,7 +5,10 @@ FROM jupyter/pyspark-notebook:latest
 USER root
 
 # Install specific PySpark version
- RUN pip install pyspark==3.2.1
+RUN pip install pyspark==3.2.1
+ 
+# Machine Learning Analitical Library CNN
+# RUN pip install tensorflow 
 
 # Install dependencies
 RUN apt-get update && apt-get install -y curl openjdk-11-jdk && apt-get clean

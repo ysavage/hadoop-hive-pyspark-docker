@@ -97,6 +97,18 @@ services:
     networks:
       - hadoop
 
+  # hive-server:
+  #   image: laithleo/hive:2.3.9
+  #   # build: .
+  #   container_name: hive-server
+  #   # depends_on:
+  #   #   - hive-metastore # This container will not work if Hive Metastore is down.
+  #   ports:
+  #     - "10000:10000" # Hive Server2
+  #     - "8088:8088"
+  #   networks:
+  #     - hadoop
+
 # Nodes running with file operation task: managing, reading and writting data to storage
 volumes:
   namenode:
