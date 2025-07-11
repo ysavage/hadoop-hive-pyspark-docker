@@ -33,5 +33,5 @@ hadoop-hive-pyspark-docker/
 |-- assets/architecture.png
 |-- README.md
 
-<img src="assets/Architecture.png" alt="Diagram" width="800"/>
+<img src="Assignment_Update/assets/Architecture.png" alt="Diagram" width="800"/>
 
